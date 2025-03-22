@@ -1,0 +1,56 @@
+import requests
+
+def taxonomy_lineage(uniprot_id):
+    """
+    Retrieves the taxonomy of an organism for a given protein from UniProt.
+
+    Parameters
+    ----------
+    uniprot_id : str
+        The UniProt identifier of the protein.
+
+    Raises
+    ------
+    ValueError
+        If `uniprot_id` is empty or invalid.
+    requests.exceptions.RequestException
+        If an error occurs while fetching data from UniProt.
+
+    Returns
+    -------
+    None
+        This function prints the taxonomy to the console but does not return any value.
+    """
+
+    url = f"https://rest.uniprot.org/uniprotkb/{uniprot_id}.json"
+    
+    response = requests.get(url)
+    
+    if response.status_code == 200:
+        data = response.json()
+    
+        organism = data.get("organism", {})
+        taxonomy = organism.get("lineage", [])
+        
+        print(f"Taksonomia dla białka {uniprot_id}:")
+        for rank in taxonomy:
+            print(rank)
+
+        strains = set()  # Używam zbioru, aby automatycznie eliminować powtórzenia
+        for reference in data.get("references", []):
+            for comment in reference.get("referenceComments", []):
+                if comment.get("type") == "STRAIN":
+                    strains.add(comment.get("value")) 
+
+        if strains:
+            print("\nZnalezione szczepy (STRAIN):")
+            for strain in strains: 
+                print(f"- {strain}")
+        else:
+            print("\nBrak informacji o szczepach (STRAIN).")
+    
+    else:
+        print(f"Błąd {response.status_code}: Nie udało się pobrać danych dla {uniprot_id}")
+
+taxonomy_lineage("P0A870")  #przykład gdy są szczepy
+#taxonomy_lineage('O95905') #przykład bez szczepów
