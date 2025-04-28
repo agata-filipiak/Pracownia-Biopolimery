@@ -1,0 +1,61 @@
+import requests
+from typing import Optional, List, Set, Dict
+
+def fetch_uniprot_data(uniprot_id: str) -> Dict:
+    """
+    Fetches UniProt entry data for a given UniProt ID.
+    """
+    if not uniprot_id:
+        raise ValueError("UniProt ID nie może być pusty.")
+
+    url = f"https://rest.uniprot.org/uniprotkb/{uniprot_id}.json"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as e:
+        raise RuntimeError(f"Problem z pobieraniem danych: {e}")
+
+def parse_taxonomy(data: Dict) -> List[str]:
+    """
+    Extracts taxonomy lineage from UniProt data.
+    """
+    return data.get("organism", {}).get("lineage", [])
+
+def parse_strains(data: Dict) -> Set[str]:
+    """
+    Extracts strains information from UniProt data.
+    """
+    strains = set()
+    for reference in data.get("references", []):
+        for comment in reference.get("referenceComments", []):
+            if comment.get("type") == "STRAIN":
+                strains.add(comment.get("value"))
+    return strains
+
+def taxonomy_lineage(uniprot_id: str) -> None:
+    """
+    Retrieves and prints the taxonomy lineage and strains for a given UniProt ID.
+    """
+    try:
+        data = fetch_uniprot_data(uniprot_id)
+        taxonomy = parse_taxonomy(data)
+        strains = parse_strains(data)
+
+        print(f"Taksonomia dla białka {uniprot_id}:")
+        for rank in taxonomy:
+            print(rank)
+
+        if strains:
+            print("\nZnalezione szczepy (STRAIN):")
+            for strain in strains:
+                print(f"- {strain}")
+        else:
+            print("\nBrak informacji o szczepach (STRAIN).")
+
+    except (ValueError, RuntimeError) as e:
+        print(e)
+
+# Przykłady użycia
+#taxonomy_lineage("P0A870")  # przykład gdy są szczepy
+taxonomy_lineage('O95905') # przykład bez szczepów
