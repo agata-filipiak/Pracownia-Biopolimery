@@ -54,3 +54,4 @@ def taxonomy_lineage(uniprot_id):
 
 taxonomy_lineage("P0A870")  #przykład gdy są szczepy
 #taxonomy_lineage('O95905') #przykład bez szczepów
+
