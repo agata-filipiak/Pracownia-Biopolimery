@@ -1,26 +1,9 @@
 import requests
 
-def taxonomy_lineage(uniprot_id):
-    """
-    Retrieves the taxonomy of an organism for a given protein from UniProt.
+def taxonomy_lineage(uniprot_id: str) -> None:
 
-    Parameters
-    ----------
-    uniprot_id : str
-        The UniProt identifier of the protein.
+    """Prints the taxonomy lineage and strain information for a given UniProt protein ID."""
 
-    Raises
-    ------
-    ValueError
-        If `uniprot_id` is empty or invalid.
-    requests.exceptions.RequestException
-        If an error occurs while fetching data from UniProt.
-
-    Returns
-    -------
-    None
-        This function prints the taxonomy to the console but does not return any value.
-    """
 
     url = f"https://rest.uniprot.org/uniprotkb/{uniprot_id}.json"
     
@@ -54,4 +37,3 @@ def taxonomy_lineage(uniprot_id):
 
 taxonomy_lineage("P0A870")  #przykład gdy są szczepy
 #taxonomy_lineage('O95905') #przykład bez szczepów
-
